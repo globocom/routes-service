@@ -54,10 +54,12 @@ func NewBgpService(config Config) (*BgpService, error) {
 	}
 
 	// Intialize peer service
+	peersService := NewPeersService(etcd, gobgp)
 
 	s := &BgpService{
-		etcdClient:  etcd,
-		gobgpClient: gobgp,
+		etcdClient:   etcd,
+		gobgpClient:  gobgp,
+		peersService: peersService,
 	}
 
 	return s, nil
@@ -68,4 +70,8 @@ func (bs BgpService) Start() error {
 	go bs.peersService.Start()
 
 	return nil
+}
+
+func (bs *BgpService) AddNeighbor(n Neighbor) error {
+	return bs.peersService.storeNeighbor(n)
 }
